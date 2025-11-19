@@ -6,11 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import z from 'zod'
 import { useNavigate } from 'react-router'
+import { useMutation } from '@tanstack/react-query'
+import { registerUser } from '@/api/register-user'
+import { toast } from 'sonner'
 
 const signUpForm = z.object({
-  nome: z.string(),
+  name: z.string(),
   email: z.email(),
-  password: z.string(),
+  password: z.string().min(6),
 })
 
 type SignUpForm = z.infer<typeof signUpForm>
@@ -26,8 +29,27 @@ export function SignUp() {
 
   const navigate = useNavigate()
 
+  const { mutateAsync: RegisterUserFn } = useMutation({
+    mutationFn: registerUser,
+  })
+
   async function handleSignUp(data: SignUpForm) {
-    navigate(`/sign-in?email=${data.email}`)
+    try {
+      await RegisterUserFn({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      })
+
+      toast.success('conta criada com sucesso!', {
+        action: {
+          label: 'Entrar',
+          onClick: () => navigate(`/sign-in?email=${data.email}`),
+        },
+      })
+    } catch {
+      toast.error('falha ao fazer cadastro')
+    }
   }
 
   return (
@@ -46,14 +68,14 @@ export function SignUp() {
         <div className="w-full rounded-xl border-2 p-7 shadow-xl sm:w-[350px]">
           <form className="space-y-5" onSubmit={handleSubmit(handleSignUp)}>
             <div className="space-y-2">
-              <Label htmlFor="email">Nome:</Label>
+              <Label htmlFor="name">Nome:</Label>
               <Input
                 type="text"
-                id="nome"
+                id="name"
                 placeholder="digite seu nome"
                 className="shadow-md"
                 required
-                {...register('nome')}
+                {...register('name')}
               />
             </div>
             <div className="space-y-2">

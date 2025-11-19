@@ -1,9 +1,12 @@
+import { signIn } from '@/api/sign-up'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
+import { toast } from 'sonner'
 import z from 'zod'
 
 const signUpForm = z.object({
@@ -16,6 +19,8 @@ type SignUpForm = z.infer<typeof signUpForm>
 export function SignIn() {
   const [searchParams] = useSearchParams()
 
+  const navigate = useNavigate()
+
   const { register, handleSubmit } = useForm<SignUpForm>({
     resolver: zodResolver(signUpForm),
     defaultValues: {
@@ -23,8 +28,22 @@ export function SignIn() {
     },
   })
 
+  const { mutateAsync: authenticate } = useMutation({
+    mutationFn: signIn,
+  })
+
   async function handleSignIn(data: SignUpForm) {
-    console.log(data)
+    try {
+      await authenticate({ email: data.email, password: data.password })
+      toast.success('autenticado com sucesso!', {
+        action: {
+          label: 'Entrar',
+          onClick: () => navigate('/'),
+        },
+      })
+    } catch {
+      toast.error('Credenciais inválidas.')
+    }
   }
 
   return (
