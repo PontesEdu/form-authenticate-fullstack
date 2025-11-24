@@ -7,7 +7,7 @@ import { Menu } from 'lucide-react'
 export function HeaderAuth() {
   return (
     <div className="flex h-20 items-center justify-between px-10 md:px-20">
-      <h1 className="text-4xl tracking-tighter">Factori</h1>
+      <h1 className="text-4xl tracking-tighter">AUTH</h1>
 
       <div className="hidden items-center gap-5 md:flex">
         <ModeToggle />

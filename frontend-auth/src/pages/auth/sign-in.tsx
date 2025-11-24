@@ -1,4 +1,4 @@
-import { signIn } from '@/api/sign-up'
+import { signIn } from '@/api/sign-in'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -34,13 +34,16 @@ export function SignIn() {
 
   async function handleSignIn(data: SignUpForm) {
     try {
-      await authenticate({ email: data.email, password: data.password })
-      toast.success('autenticado com sucesso!', {
-        action: {
-          label: 'Entrar',
-          onClick: () => navigate('/'),
-        },
+      const result = await authenticate({
+        email: data.email,
+        password: data.password,
       })
+
+      // SALVAR TOKEN
+      localStorage.setItem('token', result.token)
+
+      toast.success('autenticado com sucesso!')
+      navigate('/')
     } catch {
       toast.error('Credenciais inválidas.')
     }

@@ -6,5 +6,6 @@ interface SignInProps {
 }
 
 export async function signIn({ email, password }: SignInProps) {
-  await api.post('/authenticate', { email, password })
+  const res = await api.post('/authenticate', { email, password })
+  return res.data // <- retorna o token
 }
