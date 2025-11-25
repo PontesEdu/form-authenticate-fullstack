@@ -6,6 +6,7 @@ export function Dashboard() {
     queryKey: ['profile'],
     queryFn: getProfile,
   })
+
   return (
     <div className="flex justify-center p-10">
       <h1 className="text-3xl">

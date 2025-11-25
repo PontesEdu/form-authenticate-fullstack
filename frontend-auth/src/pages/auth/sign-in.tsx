@@ -2,6 +2,7 @@ import { signIn } from '@/api/sign-in'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useAuth } from '@/context/authProvider'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -32,6 +33,8 @@ export function SignIn() {
     mutationFn: signIn,
   })
 
+  const { setToken } = useAuth()
+
   async function handleSignIn(data: SignUpForm) {
     try {
       const result = await authenticate({
@@ -40,7 +43,7 @@ export function SignIn() {
       })
 
       // SALVAR TOKEN
-      localStorage.setItem('token', result.token)
+      setToken(result.token)
 
       toast.success('autenticado com sucesso!')
       navigate('/')

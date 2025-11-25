@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/authProvider'
 import { env } from '@/env'
 import axios from 'axios'
 
@@ -13,12 +14,43 @@ export const api = axios.create({
 //   })
 // }
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+// LOCALSTORAGE
+// api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('token')
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
+//   if (token) {
+//     config.headers.Authorization = `Bearer ${token}`
+//   }
 
-  return config
-})
+//   return config
+// })
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const status = error.response?.status
+
+    if (status === 401) {
+      try {
+        const refreshResponse = await api.patch('/token/refresh', null, {
+          withCredentials: true,
+        })
+
+        const newToken = refreshResponse.data.token
+
+        const { setToken } = useAuth()
+
+        // salva em memória
+        setToken(newToken)
+
+        // repete a requisição com o novo token
+        error.config.headers.Authorization = `Bearer ${newToken}`
+        return api.request(error.config)
+      } catch {
+        return Promise.reject(error)
+      }
+    }
+
+    return Promise.reject(error)
+  },
+)
